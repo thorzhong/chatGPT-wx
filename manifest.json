@@ -1,6 +1,6 @@
 {
     "name" : "chatGPT",
-    "appid" : "__UNI__3CB5273",
+    "appid" : "__UNI__EDA71EC",
     "description" : "",
     "versionName" : "1.0.0",
     "versionCode" : "100",
@@ -50,7 +50,7 @@
     "quickapp" : {},
     /* 小程序特有相关 */
     "mp-weixin" : {
-        "appid" : "wxe95fdbf2b0886c68",
+        "appid" : "wxe254eb1fdbe88768",
         "setting" : {
             "urlCheck" : false,
             "minified" : true

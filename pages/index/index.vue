@@ -88,8 +88,9 @@
 				showShareBtn: true,
 				rewardedVideoAd: null, //广告
 				num: 5, //次数
-				apiurl: 'https://chatgptest-node-chatgptest-node-oozhtxrqgh.us-west-1.fcapp.run', //后端转发地址
-				api: '', //在此输入你的apikey
+				apiurl: 'https://api.replicate.com/v1/predictions', //后端转发地址
+				// api: '', //在此输入你的apikey
+				REPLICATE_API_TOKEN: 'r8_N14NroJStfCigw3jcLUaikmpNv1tsE42w2XMc',
 				isScroll: true, //是否可以滑动
 				userAvatar: '', //头像
 				msgLoad: false,
@@ -105,7 +106,7 @@
 					sentencePause: false
 				}],
 				msgContent: [],
-				msg: ""
+				msg: ''
 			}
 		},
 		computed: {
@@ -189,46 +190,89 @@
 				this.msgLoad = true
 				// 清除消息
 				this.msg = ""
-				let data = JSON.stringify({
-					body: this.msgContent,
-					apiKey: this.api
-				})
-				uni.request({
-					url: this.apiurl + '/message',
-					data: data,
-					method: 'POST',
-					success: (res) => {
-						if (res.data.code == 200) {
-							let text = res.data.data.choices[0].message.content.replace(/[\r\n][\r\n]/, "")
-							this.msgList.push(JSON.parse(JSON.stringify(this.config)))
-							new EasyTyper(this.msgList[this.msgList.length - 1], text)
-							this.isRequesting = false;
-							this.num--
-							this.msgContent.push({
-								"role": res.data.data.choices[0].message.role,
-								"content": text,
-							})
-							this.msgLoad = false
-							this.$nextTick(() => {
-								that.intoindex = "text" + (this.msgList.length - 1)
-							});
-						} else {
-							this.msgList.push(JSON.parse(JSON.stringify(this.config)))
-							new EasyTyper(this.msgList[this.msgList.length - 1], this.errorMsg)
-							this.isRequesting = false;
-							this.num--
-							this.msgLoad = false
-						}
-					},
-					fail: (err) => {
-						console.log(3344444, '失败');
-						this.msgList.push(JSON.parse(JSON.stringify(this.config)))
-						new EasyTyper(this.msgList[this.msgList.length - 1],  this.errorMsg)
-						this.num--
-						this.isRequesting = false;
-						this.msgLoad = false
+				
+				// https://replicate.com/stability-ai/stable-diffusion/api#run
+				uniCloud.callFunction({
+				    name:'requestStableDiffusion',
+				    data:{
+							url: this.apiurl,
+				            token: 'Token ' + this.REPLICATE_API_TOKEN,
+							contentType: 'application/json',
+							content:{
+								"version": "db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf",
+								"input": {
+								  "prompt": "a vision of paradise. unreal engine"
+								}
+							}
+				    },
+				    success:res=>{
+						console.log("res of prediction: ",res.result)
+				    }, fail: (err) => {
+						console.log('get prediction fail');
 					}
-				})
+				});
+				this.isRequesting = false;
+				
+				
+				// uni.request({
+				// 	url: this.apiurl,
+				// 	method: 'POST',
+				// 	header: {
+				// 		'Authorization': 'Token ' + this.REPLICATE_API_TOKEN, // 'Token' + 
+				// 		'Content-Type': 'application/json',
+				// 	},
+				// 	data: {
+				// 	    "version": "db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf",
+				// 	    "input": {
+				// 	      "prompt": "a vision of paradise. unreal engine"
+				// 	    }
+				// 	},
+					
+				// 	success: (res) => {
+				// 		console.log(3344444, '成功 ');
+				// 		console.log(34345, res);
+				// 		console.log("this.REPLICATE_API_TOKEN:",this.REPLICATE_API_TOKEN);
+				// 		// Note that status is "starting" but there's no output yet. Refetch the prediction from the API using the prediction id from the previous response:
+				// 		let id = res.data.id
+				// 		console.log("id:", id);
+						
+				// 		// uni.request({
+				// 		// 	url: 'https://api.replicate.com/v1/predictions'
+				// 		// })
+						
+				// 		if (res.data.code == 200) {
+				// 			console.log("res.data111:", res.data);
+				// 			let text = res.data.data.choices[0].message.content.replace(/[\r\n][\r\n]/, "")
+				// 			this.msgList.push(JSON.parse(JSON.stringify(this.config)))
+				// 			new EasyTyper(this.msgList[this.msgList.length - 1], text)
+				// 			this.isRequesting = false;
+				// 			this.num--
+				// 			this.msgContent.push({
+				// 				"role": res.data.data.choices[0].message.role,
+				// 				"content": text,
+				// 			})  
+				// 			this.msgLoad = false
+				// 			this.$nextTick(() => {
+				// 				that.intoindex = "text" + (this.msgList.length - 1)
+				// 			});
+				// 		} else {
+				// 			console.log("res.data222:", res.data);
+				// 			this.msgList.push(JSON.parse(JSON.stringify(this.config)))
+				// 			new EasyTyper(this.msgList[this.msgList.length - 1], this.errorMsg)
+				// 			this.isRequesting = false;
+				// 			this.num--
+				// 			this.msgLoad = false
+				// 		}
+				// 	},
+				// 	fail: (err) => {
+				// 		console.log(3344444, '失败');
+				// 		this.msgList.push(JSON.parse(JSON.stringify(this.config)))
+				// 		new EasyTyper(this.msgList[this.msgList.length - 1],  this.errorMsg)
+				// 		this.num--
+				// 		this.isRequesting = false;
+				// 		this.msgLoad = false
+				// 	}
+				// })
 			},
 
 		}
